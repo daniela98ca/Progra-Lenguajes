@@ -255,16 +255,97 @@ void imprimirCitas(Citas* ptr){
     }
 }
 
-
-int ContarCitas(Citas* ptr,int codigoMedico, int hora)
+//FUNCIONES PARA LAS VALIDACIONES AL PROGRAMAR CITA 
+/*
+ Funcion para contar las citas de un doctor a la misma hora
+ * Retorna la cantidad de citas que un medico tiene asignado a una hora
+ */
+int ContarCitasHorario(Citas* ptr,int codigoMedico, int hora)
 {
     int total=0;
     while(ptr!=NULL){
-        if(codigoMedico==ptr->cod_medico){
-            
-        }
+        if((codigoMedico==ptr->cod_medico)&&(hora==ptr->hora)){
+            total++; 
+        } 
+        else{ 
+            ptr=ptr->siguiente;
+        }    
     }
+    return total;
 }
+
+/*
+ */
+
+
+
+/*
+ Funcion para contar la cantidad de medicos en la lista 
+ * Retorna la cantidad de Medicos 
+ */
+int contarMedicos(Medicos* ptr)
+{
+    int total=0;
+    while(ptr!==NULL){
+        total++;
+        ptr=ptr->siguiente;
+    }
+    return total;
+}
+
+/*
+ Funcion para contar la cantidad de citas en la lista 
+ * Retorna la cantidad de Citas 
+ */
+int contarCitas(Citas* ptr)
+{
+    int total=0;
+    while(ptr!==NULL){
+        total++;
+        ptr=ptr->siguiente;
+    }
+    return total;
+}
+
+
+/*
+ Funcion para contar la cantidad de pacientes en la lista 
+ * Retorna la cantidad de Pacientes 
+ */
+int contarPacientes(Pacientes* ptr)
+{
+    int total=0;
+    while(ptr!==NULL){
+        total++;
+        ptr=ptr->siguiente;
+    }
+    return total;
+}
+
+
+
+/*
+ Funcion para verificar que el doctor asignado a la cita se encuentra 
+ * registrado en el sistema
+ * Retorna 1 si el codigo del doctor se encuentra registrado
+ * Retorna 0 si el codigo del doctor no se encuentra registrado 
+ */
+int VerificarDoctor(Medicos* ptr,int codigoMedico)
+{
+    while(ptr!=NULL){
+        if(codigoMedico==ptr->codigo){
+            return 1;
+        } 
+        else{ 
+            ptr=ptr->siguiente;
+        }    
+    }
+    return 0;
+}
+
+/*
+ Funcion para */
+
 
 
 
