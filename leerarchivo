@@ -1,0 +1,66 @@
+/*
+Medicos* leerarchivo(FILE* fichero){
+    fichero=fopen("exampleA.txt","rt");
+        char c;
+        c=fgetc(fichero);
+        char informacion[25];
+        char infovacia[25];
+        
+        int contadoratributos=1;
+        int contadormedicos=0;
+        int caracteres=0;
+        
+        Medicos* inicio=NULL;
+        Medicos* nuevo=(Medicos*)malloc(sizeof(Medicos));
+   
+    if(fichero==NULL){
+        printf("No se pudo cargar el archivo");
+    }
+    else if(feof(fichero)!=0){
+        printf("El archivo se encuentra vacio");
+    }
+    else{
+        while(feof(fichero)==0){
+            if(c==','){
+                contadoratributos++;
+                c=fgetc(fichero);
+            }
+            else if(c=='-'){
+                contadormedicos++;
+                contadoratributos=0;
+                inicio=agregarMedico2(nuevo,inicio); 
+            }
+            else{
+                informacion[caracteres]=c;
+                caracteres++;
+                if(fgetc(fichero)==','){
+                    if(contadoratributos==0){
+                        nuevo->codigo=c-'0';
+                    }
+                    else if(contadoratributos==1){
+                        nuevo->nombre=informacion;
+                    }
+                    else if(contadoratributos==2){
+                        nuevo->apellido1=informacion;
+                                               
+                    }
+                    else if(contadoratributos==3){
+                        nuevo->especialidad=informacion;
+                        
+                    }
+                    else if(contadoratributos==4){
+                        nuevo->turno=informacion;
+                    }
+                    contadoratributos++;
+                    informacion=infovacia; 
+                    caracteres=0;
+              
+                    }
+            }
+            c=fgetc(fichero);
+        }
+    }
+        fclose(fichero);
+        imprimirMedicos(inicio);
+        return inicio;
+}*/
