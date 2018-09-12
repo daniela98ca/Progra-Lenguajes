@@ -4,8 +4,7 @@
 #include <string.h>
 
 /*Para cargar archivos .txt*/
-/*
-    Modos: 
+/*Modos: 
  * r: lectura unicamente
  * w:escritura, si no existe se crea, si existe lo reemplaza
  * a: añadir datos al final, si no existe se crea
@@ -32,7 +31,7 @@ typedef struct Paciente{
   int edad;
   NumTelefono numero;
   struct Paciente* siguiente;
-  }Pacientes;
+}Pacientes;
 
 typedef struct Cita{
     int cod_medico;
@@ -40,9 +39,80 @@ typedef struct Cita{
     int hora; //(08-19)
     //falta fecha dd-mm-aaaa 
     struct Cita* siguiente;
-}Citas;
+}Citas; 
 
 //FUNCIONES
+/*
+ Funciones para cargar los archivos de texto que contienen los datos del programa
+ No contiene entradas
+ Tiene como salida un puntero a un fichero
+ */
+
+//Cargar archivo de Medicos
+FILE* cargarMedicos(){
+    FILE* fichero;
+    fichero=fopen("medicos.txt","a");
+    if(fichero==NULL)
+    {
+        printf("No se pudo cargar el archivo de medicos\n");
+    }
+    else
+    {
+        printf("Se cargo correctamente el archivo de medicos\n");
+    }
+    return fichero;
+}
+
+//Cargar archivos de Pacientes
+FILE* cargarPacientes(){
+    FILE* fichero;
+    fichero=fopen("pacientes.txt","a");
+    if(fichero==NULL)
+    {
+        printf("No se pudo cargar el archivo de pacientes\n");
+    }
+    else
+    {
+    printf("Se cargo correctamente el archivo de pacientes\n");
+    }
+    return fichero;
+}
+//Cargar archivo de Citas  
+FILE* cargarCitas(){
+    FILE* fichero;
+    fichero=fopen("citas.txt","a");
+    if(fichero==NULL){
+        printf("No se pudo cargar el archivo de citas\n");
+    }
+    else
+    {
+    printf("Se cargo correctamente el archivo de citas\n");
+    }
+    return fichero;
+}
+
+int archivoVacio(FILE* fichero){
+    char c;
+    c=fgetc(fichero);
+    if((feof(fichero))!=0){
+        return 1;
+    }
+    else{
+        return 0;
+    }
+}
+
+
+/*
+ Funcion para vaciar un arreglo de caracteres
+ */
+void vaciararreglo(char temp[]){
+    int i;
+    for(i=0;i<50;i++){
+        temp[i]='\0';
+    }
+}
+
 
 /*
 Recibe puntero y codigo
@@ -87,7 +157,10 @@ Medicos* agregarMedico(char* nombre,int codigo,char* apellido,char* especialidad
         return ini;       
     }  
 
-Medicos* agregarMedico2(Medicos* nuevo,Medicos* inicio){
+/*
+ Funcion para agregar un nuevo médico a la lista 
+ */
+Medicos* agregarMedicoEstructura(Medicos* nuevo,Medicos* inicio){
     nuevo->siguiente=inicio;
 }
 
@@ -102,113 +175,32 @@ void imprimirMedicos(Medicos* ptr){
     }
 }
 
-
 /*
- Funcion para cargar los archivos de texto que contienen los datos del programa
- No contiene entradas
- Tiene como salida un puntero a un fichero
+ Funcion para guardar los datos de los medicos en el archivo .txt 
  */
-FILE* cargar(){
-    FILE* fichero_medicos;
-    FILE* fichero_pacientes;
-    FILE* fichero_citas;
-    fichero_medicos=fopen("medicos.txt","a");
-    fichero_pacientes=fopen("pacientes.txt","a");
-    fichero_citas=fopen("citas.txt","a");
-    if(fichero_medicos==NULL && fichero_pacientes==NULL && fichero_citas==NULL){
-        printf("No se pudo cargar el archivo");
-    }
-    else{
-    printf("Se cargo correctamente\n");
-    }
-    return fichero_medicos;
-    return fichero_pacientes;
-    return fichero_citas;
-}
-
-void guardarMedico(FILE* fichero_medico,char* nombre, int codigo,char* apellido,char* especialidad,char* turno)
+int guardarMedico(FILE* fichero,char* nombre, int codigo,char* apellido,char* especialidad,char* turno)
 {
-    if(fichero_medico==NULL){
-        printf("No se ha podido cargar el fichero");
+    if(fichero==NULL)
+    {
+        printf("No se ha podido cargar el fichero\n");
+        return 0;
     }
-    else{
-        fprintf(fichero_medico,"%d,",codigo);
-        fprintf(fichero_medico,"%s,",nombre);
-        fprintf(fichero_medico,"%s,",apellido);
-        fprintf(fichero_medico,"%s,",especialidad);
-        fprintf(fichero_medico,"%s,-",turno);
+    else
+    {
+        fprintf(fichero,"%d,",codigo);
+        fprintf(fichero,"%s,",nombre);
+        fprintf(fichero,"%s,",apellido);
+        fprintf(fichero,"%s,",especialidad);
+        fprintf(fichero,"%s-",turno);
+        return 1;
     }
 }
 
-/*Medicos* leerarchivo(FILE* fichero){
-    fichero=fopen("exampleA.txt","rt");
-        char c;
-        c=fgetc(fichero);
-        char informacion[25];
-        char infovacia[25];
-        
-        int contadoratributos=1;
-        int contadormedicos=0;
-        int caracteres=0;
-        
-        Medicos* inicio=NULL;
-        Medicos* nuevo=(Medicos*)malloc(sizeof(Medicos));
-   
-    if(fichero==NULL){
-        printf("No se pudo cargar el archivo");
-    }
-    else if(feof(fichero)!=0){
-        printf("El archivo se encuentra vacio");
-    }
-    else{
-        while(feof(fichero)==0){
-            
-            if(c==','){
-                contadoratributos++;
-                c=fgetc(fichero);
-            }
-            else if(c=='-'){
-                contadormedicos++;
-                contadoratributos=0;
-                inicio=agregarMedico2(nuevo,inicio); 
-            }
-            else{
-                informacion[caracteres]=c;
-                caracteres++;
-                if(fgetc(fichero)==','){
-                    if(contadoratributos==0){
-                        nuevo->codigo=c-'0';
-                    }
-                    else if(contadoratributos==1){
-                        nuevo->nombre=informacion;
-                    }
-                    else if(contadoratributos==2){
-                        nuevo->apellido1=informacion;
-                                               
-                    }
-                    else if(contadoratributos==3){
-                        nuevo->especialidad=informacion;
-                        
-                    }
-                    else if(contadoratributos==4){
-                        nuevo->turno=informacion;
-                    }
-                    contadoratributos++;
-                    informacion=infovacia; 
-                    caracteres=0;
-              
-                    }
-            }
-            c=fgetc(fichero);
-            printf("%c",c);
-        }
-    }
-        fclose(fichero);
-        imprimirMedicos(inicio);
-        return inicio;
-}*/
 
 /*
+ ------------------------------------------------------------------------------------------
+ ------------------------------------------------------------------------------------------
+ ------------------------------------------------------------------------------------------
  Recibe los datos de la nueva cita y un puntero a la lista de citas
  Sirve para agregar nuevas citas 
  Retorna la ultima cita agregada
@@ -231,10 +223,14 @@ Citas* agregarCitas(int cod_medico,int id_cliente,int hora,Citas* ini){
         printf("La cita se agregó correctamente\n");
         return ini;       
     }
+
 Citas* agregarCitas2(Citas* nuevo,Citas* inicio){
     nuevo->siguiente=inicio;
 }
 
+/*
+ Funcion para agregar las citas en el archivo de citas
+*/
 void guardarCita(FILE* fichero_citas,int cod_medico, int id_cliente,int hora)
 {
     if(fichero_citas==NULL){
@@ -259,77 +255,31 @@ void imprimirCitas(Citas* ptr){
     }
 }
 
-/*
-Recibe puntero y la identificación del cliente
-Sirve para buscar un paciente en la lista 
-retorna true o false
- */
-bool existePaciente(int identificacion, Pacientes* ptr){
-    while(ptr!=NULL){
-        if(ptr->identificacion==identificacion) 
-        {
-            return true;
-        }
-        else{
-            ptr=ptr->siguiente;
-        }
-    }
-    return false;
-}
 
-Pacientes* agregarPacientes(int identificacion, char* nombre, char* apellido, int edad, int numero, Pacientes* ini){
-    Pacientes* nuevo=(Pacientes*)malloc(sizeof(Pacientes));
-    nuevo->identificacion=identificacion;
-    strcpy(nuevo->nombre,nombre);
-    strcpy(nuevo->apellido1,apellido);
-    nuevo->edad=edad; 
-    //nuevo->numero=numero;
-        if(ini== NULL)
-        {
-            ini=nuevo;
-            nuevo->siguiente=NULL;
-        }
-        else{
-            nuevo->siguiente=ini;
-            ini=nuevo;
-        }
-        printf("El paciente se agregó correctamente\n");
-        return ini;       
-    }
-Pacientes* agregarPacientes2(Pacientes* nuevo,Pacientes* inicio){
-    nuevo->siguiente=inicio;
-}
-
-void guardarPacientes(FILE* fichero_pacientes,int identificacion, char* nombre,char* apellido, int edad)
+int ContarCitas(Citas* ptr,int codigoMedico, int hora)
 {
-    if(fichero_pacientes==NULL){
-        printf("No se ha podido cargar el fichero");
-    }
-    else{
-        fprintf(fichero_pacientes,"%d,",identificacion);
-        fprintf(fichero_pacientes,"%s,",nombre);
-        fprintf(fichero_pacientes,"%s,",apellido);
-        fprintf(fichero_pacientes,"%d",edad);
-        //fprintf(fichero_pacientes,"%d,-",numero);
+    int total=0;
+    while(ptr!=NULL){
+        if(codigoMedico==ptr->cod_medico){
+            
+        }
     }
 }
 
+
+
 /*
- Recibe un puntero a la lista de pacientes
- Sirve para imprimir todos los pacientes de la lista
+ ------------------------------------------------------------------------------------------
+ ------------------------------------------------------------------------------------------
+ ------------------------------------------------------------------------------------------
  */
-void imprimirPacientes(Pacientes* ptr){
-    while(ptr!=NULL){
-        printf("Identificacion: %d  Nombre: %s Apellido: %s Edad: %d\n",ptr->identificacion,ptr->nombre,ptr->apellido1, ptr->edad);
-        ptr=ptr->siguiente;
-    }
-}
+
 
 int main(int argc, char** argv) {
     int respuesta;
-    FILE* fichero_medicos;
-    FILE* fichero_pacientes;
-    FILE* fichero_citas;
+    FILE* ficheroMedicos;
+    FILE* ficheroCitas;
+    FILE* ficheroPacientes;
 
     //Atributos de medicos
     int codigoMedico;
@@ -337,14 +287,11 @@ int main(int argc, char** argv) {
     char apellidoMedico[15];
     char especialidad[25];
     char turno[15];
-    Medicos* inicio=NULL; 
     
-    //Atributos de las citas
-    int cod_medico;
-    int id_cliente;
-    int hora;
-    //int fecha;
-    Citas* ini=NULL; 
+    //Inicio para las listas de Medicos, Citas y Pacientes
+    Medicos* inicioMedico=NULL; 
+    Citas* inicioCitas=NULL;
+    Pacientes* inicioPacientes=NULL;
     
     //Atributos de los pacientes
     int identificacion;
@@ -352,44 +299,76 @@ int main(int argc, char** argv) {
     char apellidoPaciente[15];
     int edad;
     NumTelefono numero;
-    //Pacientes* inicio=NULL; 
+    
+    //Atributos de las citas
+    int cod_medico;
+    int id_cliente;
+    int hora;
+    
+    
     
     while(respuesta!=5){ 
         printf("--------------Menu de opciones------------ \n Seleccione la opción que desea :\n 1.Cargar datos \n 2.Registrar nuevo medico \n 3.Programar cita \n 4.Estadisticas \n 5.Salir\n");
         scanf("%d",&respuesta);
-        if(respuesta==1){ 
+        if(respuesta==1)
+        { 
             printf("-----------Cargando archivos-----------\n");
-            fichero_medicos=cargar();
-            fichero_citas=cargar();
-            fichero_pacientes=cargar();
+            ficheroMedicos=cargarMedicos();
+            ficheroCitas=cargarPacientes();
+            ficheroPacientes=cargarCitas();
+            
+           /* 
+            if((archivoVacio(ficheroMedicos))==1)
+            {
+                printf("El archivo de medicos no contenia datos");
+            }
+            else if((archivoVacio(ficheroCitas))==1)
+            {
+                printf("El archivo de citas no contenia datos");
+            }
+            else if((archivoVacio(ficheroPacientes))==1)
+            {
+                printf("El archivo de pacientes no contenia datos");
+            }
+            * 
+            */
+
         }
-        else if(respuesta==2){
+        else if(respuesta==2)
+        {
             printf("-----------Agregando Medicos-----------\n");
             printf("Escriba el codigo del nuevo medico: ");
             scanf("%d",&codigoMedico);
             
-            if(existeMedico(codigoMedico,inicio)){
+            if(existeMedico(codigoMedico,inicioMedico))
+            {
                 printf("El codigo ya fue asignado, no se pudo agregar el medico\n");
                 exit(1);
-       
             }
-            else{
-                printf("Escriba el nombre del medico:  ");
-                scanf("%s",nombreMedico);
-                printf("Escriba el primer apellido del medico: ");
-                scanf("%s",apellidoMedico);
-                printf("Escriba la especialidad del medico: "); 
-                scanf("%s",especialidad);
-                printf("Escriba el turno del medico(mañana,tarde,todo el dia): ");
-                scanf("%s",turno);
-                inicio=agregarMedico(nombreMedico,codigoMedico,apellidoMedico,especialidad,turno,inicio); 
-                //fprintf(fichero,"%c CODIGO:%d-NOMBRE:%s-APELLIDO:%s-ESPECIALIDAD:%s-TURNO:%s ",'\n',codigoMedico,nombreMedico,apellidoMedico,especialidad,turno);
-//                fprintf(fichero,"%d,%s,%s,%s,%s \n",codigoMedico,nombreMedico,apellidoMedico,especialidad,turno);
-                guardarMedico(fichero_medicos,nombreMedico,codigoMedico,apellidoMedico,especialidad,turno);
+            else
+            {
+                if(ficheroMedicos==NULL)
+                {
+                 printf("Debe cargar el archivo de Medicos primero");   
+                }
+                else
+                {
+                    printf("Escriba el nombre del medico:  ");
+                    scanf("%s",nombreMedico);
+                    printf("Escriba el primer apellido del medico: ");
+                    scanf("%s",apellidoMedico);
+                    printf("Escriba la especialidad del medico: "); 
+                    scanf("%s",especialidad);
+                    printf("Escriba el turno del medico(mañana(M),tarde(T),todo el dia(A): ");
+                    scanf("%s",turno);
+                    guardarMedico(ficheroMedicos,nombreMedico,codigoMedico,apellidoMedico,especialidad,turno);
+                    inicioMedico=agregarMedico(nombreMedico,codigoMedico,apellidoMedico,especialidad,turno,inicioMedico); 
+                }
             }
         }
             
-        else if(respuesta==3){
+        else if(respuesta==3)
+        {
             printf("-----------Programando una cita-----------\n");
             printf("Escriba el codigo del medico: ");
             scanf("%d",&cod_medico);
@@ -397,33 +376,20 @@ int main(int argc, char** argv) {
             scanf("%d",&id_cliente);
             printf("Escriba la hora de la cita: ");
             scanf("%d",&hora);
+            
             //printf("Escriba la fecha de la cita: ");
             //scanf("%d",fecha);
-            ini=agregarCitas(cod_medico,id_cliente,hora,ini);
-            guardarCita(fichero_citas,cod_medico,id_cliente,hora);
-            /*printf("-----------Leer Datos-----------\n");
-            fichero_medicos=fopen("medicos.txt","rt");
-            if(fichero_medicos==NULL){
-            printf("No se pudo cargar el archivo");
-            }
-            char c;
-            
-            while (feof(fichero_medicos) == 0){
-                c = fgetc(fichero_medicos);
-                printf("%c", c);
-            } 
-            fclose(fichero_medicos);
-            return 0;*/
-            /*inicio=leerdatos(fichero);
-            imprimirMedicos(inicio);
-            (fichero);*/
+            /*
+            inicioCitas=agregarCitas(cod_medico,id_cliente,hora,inicioCitas);
+            guardarCita(ficheroCitas,cod_medico,id_cliente,hora);
+            */
             
         }
         else if(respuesta==4){
             printf("-----------Estadisticas-----------\n");
             
         }
-    }
+        }
 
     
     
