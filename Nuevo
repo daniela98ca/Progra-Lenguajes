@@ -1,0 +1,726 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+
+
+//Creacion de tipo de datos para los numeros telefonicos 
+typedef int NumTelefono [8];
+
+//ESTRUCTURAS DEL PROGRAMA
+typedef struct Medico{
+    int codigo;
+    char nombre[25];
+    char apellido1[25];
+    char especialidad[25];
+    char turno[25];
+    int contador;
+    struct Medico* siguiente;
+}Medicos;
+
+typedef struct Paciente{
+  int identificacion;
+  char nombre[25];
+  char apellido1[25];
+  int edad;
+  NumTelefono numero;
+  struct Paciente* siguiente;
+}Pacientes;
+
+typedef struct Cita{
+    int cod_medico;
+    int id_cliente;
+    int hora; //(08-19)
+    //falta fecha dd-mm-aaaa 
+    struct Cita* siguiente;
+}Citas; 
+
+//FUNCIONES
+/*
+ Funciones para cargar los archivos de texto que contienen los datos del programa
+ No contiene entradas
+ Tiene como salida un puntero a un fichero
+ */
+
+//Cargar archivo de Medicos
+FILE* cargarMedicos(){
+    FILE* fichero;
+    fichero=fopen("medicos.txt","a");
+    if(fichero==NULL)
+    {
+        printf("No se pudo cargar el archivo de medicos\n");
+    }
+    else
+    {
+        printf("Se cargo correctamente el archivo de medicos\n");
+    }
+    return fichero;
+}
+
+//Cargar archivos de Pacientes
+FILE* cargarPacientes(){
+    FILE* fichero;
+    fichero=fopen("pacientes.txt","a");
+    if(fichero==NULL)
+    {
+        printf("No se pudo cargar el archivo de pacientes\n");
+    }
+    else
+    {
+    printf("Se cargo correctamente el archivo de pacientes\n");
+    }
+    return fichero;
+}
+//Cargar archivo de Citas  
+FILE* cargarCitas(){
+    FILE* fichero;
+    fichero=fopen("citas.txt","a");
+    if(fichero==NULL){
+        printf("No se pudo cargar el archivo de citas\n");
+    }
+    else
+    {
+    printf("Se cargo correctamente el archivo de citas\n");
+    }
+    return fichero;
+}
+
+
+/*
+ Recibe los datos del nuevo medico y un puntero a la lista de medicos
+ Sirve para agregar nuevos medicos 
+ Retorna el ultimo medico agregado
+ */
+Medicos* agregarMedico(char* nombre,int codigo,char* apellido,char* especialidad,char* turno ,Medicos* ini){
+    Medicos* nuevo=(Medicos*)malloc(sizeof(Medicos));
+    strcpy(nuevo->nombre,nombre);
+    strcpy(nuevo->apellido1,apellido);
+    strcpy(nuevo->especialidad,especialidad);
+    strcpy(nuevo->turno,turno);
+    nuevo->codigo=codigo;    
+        if(ini== NULL)
+        {
+            ini=nuevo;
+            nuevo->siguiente= NULL;
+        }
+        else{
+            nuevo->siguiente= ini;
+            ini=nuevo;
+        }
+        printf("El nuevo mÃ©dico se agregÃ³ correctamente\n");
+        return ini;       
+    }  
+
+/*
+ Recibe los datos de la nueva cita y un puntero a la lista de citas
+ Sirve para agregar nuevas citas 
+ Retorna la ultima cita agregada
+ */
+Citas* agregarCitas(int cod_medico,int id_cliente,int hora,Citas* ini){
+    Citas* nuevo=(Citas*)malloc(sizeof(Citas));
+    nuevo->cod_medico=cod_medico;
+    nuevo->id_cliente=id_cliente;
+    nuevo->hora=hora;
+    //nuevo->fecha=fecha;
+        if(ini== NULL)
+        {
+            ini=nuevo;
+            nuevo->siguiente=NULL;
+        }
+        else{
+            nuevo->siguiente=ini;
+            ini=nuevo;
+        }
+        printf("La cita se agregÃ³ correctamente\n");
+        return ini;       
+    }
+
+/*
+ Funcion para agregar los nuevos pacientes a la lista
+ */
+Pacientes* agregarPacientes(int identificacion, char* nombre, char* apellido, int edad, int numero, Pacientes* ini){
+    Pacientes* nuevo=(Pacientes*)malloc(sizeof(Pacientes));
+    nuevo->identificacion=identificacion;
+    strcpy(nuevo->nombre,nombre);
+    strcpy(nuevo->apellido1,apellido);
+    nuevo->edad=edad; 
+    //nuevo->numero=numero;
+        if(ini== NULL)
+        {
+            ini=nuevo;
+            nuevo->siguiente=NULL;
+        }
+        else{
+            nuevo->siguiente=ini;
+            ini=nuevo;
+        }
+        printf("El paciente se agregÃ³ correctamente\n");
+        return ini;       
+    }
+
+/*
+Recibe puntero y codigo
+Sirve para buscar un medico en la lista 
+retorna true o false
+ */
+int existeMedico(int codigo, Medicos* ptr){
+    while(ptr!=NULL){
+        if(ptr->codigo==codigo)
+        {
+            ptr-> contador++;
+            return 1;
+        }
+        else{
+            ptr=ptr-> siguiente;
+        }
+    }
+    return 0;
+}
+
+/*FunciÃ³n que muestra cual contador es mayor, 
+ * segun las veces que se verifica la existencia de un codigo*/
+int contadorMayor(int cont, Medicos* ptr){
+    int mayor = 0;
+    int temporal = 0;
+    while(ptr!=NULL){
+        if (temporal < cont){
+            mayor = cont;
+            temporal= cont;
+        }
+        else{
+            mayor= temporal;
+        }
+           
+    }  
+    ptr = ptr-> siguiente; 
+   return mayor;  
+}
+
+/*FunciÃ³n que imprime cual mÃ©dico tiene mÃ¡s citas
+ Falta indicacion para que compruebe si es el mayor*/
+
+int medicoCotizado(Medicos* ptr, int mayor){
+    while(ptr!=NULL){
+        if(contadorMayor(ptr-> contador)== mayor){
+            printf("El mÃ©dico con mÃ¡s citas es: %s,%s,%s", ptr->nombre, ptr->apellido1, ptr->especialidad);
+            printf("\n");
+            printf("Tiene una cantidad de citas de: %d", ptr-> contador);    
+        }
+        else{
+            ptr= ptr-> siguiente;
+        }
+    }
+    return 0;
+    
+} 
+
+
+
+/*
+Recibe puntero y codigo
+Sirve para buscar un medico en la lista 
+retorna true o false
+ */
+int existePaciente(int id, Pacientes* ptr){
+    while(ptr!=NULL){
+        if(ptr->identificacion==id)
+        {
+            return 1;
+        }
+        else{
+            ptr=ptr->siguiente;
+        }
+    }
+    return 0;
+}
+
+
+/*
+ Recibe un puntero a la lista de medicos
+ Sirve para imprimir todos los medicos de la lista
+ */
+void imprimirMedicos(Medicos* ptr){
+    while(ptr!=NULL){
+        printf("Codigo: %d  Nombre: %s Apellido: %s Especialidad: %s Turno: %s \n",ptr->codigo,ptr->nombre,ptr->apellido1,ptr->especialidad,ptr->turno);
+        ptr=ptr-> siguiente;
+    }
+}
+/*
+ Recibe un puntero a la lista de citas
+ Sirve para imprimir todos las citas de la lista
+ */
+void imprimirCitas(Citas* ptr){
+    while(ptr!=NULL){
+        printf("Codigo de medico: %d  Identificacion del cliente: %d Hora: %d\n",ptr->cod_medico,ptr->id_cliente,ptr->hora);
+        ptr=ptr->siguiente;
+    }
+}
+
+
+/*
+ Funcion para guardar los datos de los medicos en el archivo .txt 
+ */
+int guardarMedico(char* nombre, int codigo,char* apellido,char* especialidad,char* turno)
+{
+    FILE* fichero;
+    fichero=fopen("medicos.txt","a");
+    if(fichero==NULL)
+    {
+        printf("No se ha podido cargar el fichero\n");
+        return 0;
+    }
+    else
+    {
+        fprintf(fichero,"%d %s %s %s %s\r\n",codigo,nombre,apellido,especialidad,turno);
+        printf("Los datos se agregaron al fichero exitosamente\n");
+        fclose(fichero);
+        return 1;
+    }   
+}
+
+/*
+ Funcion para agregar las citas en el archivo de citas
+*/
+void guardarCita(FILE* fichero_citas,int cod_medico, int id_cliente,int hora)
+{
+    if(fichero_citas==NULL){
+        printf("No se ha podido cargar el fichero\n");
+    }
+    else{
+        fprintf(fichero_citas,"%d %d %d",cod_medico,id_cliente,hora);
+        
+    }
+}
+/*
+ Funcion para agregar los pacientes en el archivo de pacientes 
+ */
+//void guardarPaciente(FILE* fichero, int id,char* nombre,char* apellido,int edad,int numero_tel){
+void guardarPaciente(FILE* fichero,int id,char* nombre, char*apellido, int edad){
+    if(fichero==NULL){
+        printf("No se ha podido cargar el fichero de pacientes");
+    }
+    else{
+       // fprintf(fichero,"%d %s %s %d %d",id,nombre,apellido,edad,numero_tel);
+        fprintf(fichero,"%d %s %s %d",id,nombre,apellido,edad);
+        
+    }
+}
+
+
+/*
+ Funcion para leer los medicos del archivo txt y guardarlos en lista
+ */
+Medicos* leerMedicos(){
+   Medicos* temporal=NULL;
+   FILE* fichero;
+   fichero=fopen("medicos.txt","r");
+   
+   char nombre[25], apellido[25], especialidad[25],turno[25];
+   int codigo,contador=1;
+   
+   rewind(fichero);
+   while((fscanf(fichero,"%d %s %s %s %s", &codigo, nombre, apellido, especialidad,turno))!=EOF){
+       
+        temporal=agregarMedico(nombre,codigo,apellido,especialidad,turno,temporal);
+       // printf("Medico %d: %d %s %s %s %s\n",contador,codigo, nombre, apellido, especialidad,turno);
+        //contador++;
+   }
+    fclose(fichero);
+   
+   return temporal;
+} 
+
+/*
+ Funcion para leer las citas del archivo txt y guardarlas en lista 
+ */
+Citas* leerCitas(){
+   Citas* temporal=NULL;
+   FILE* fichero;
+   fichero=fopen("citas.txt","r");
+   
+   //char fecha[25];
+   int codigoMedico,idCliente,hora,contador=0;
+   
+   rewind(fichero);
+   while((fscanf(fichero,"%d %d %d", &codigoMedico, &idCliente, &hora))!=EOF){
+       
+        temporal=agregarCitas(codigoMedico,idCliente,hora,temporal);
+        //printf("Medico %d: %d %s %s %s %s\n",contador,codigo, nombre, apellido, especialidad,turno);
+        contador++;
+   }
+    fclose(fichero);
+   
+   return temporal;
+}
+
+/*
+ Funcion para leer los pacientes del archivo txt y guardarlos en lista 
+ */
+Pacientes* leerPacientes(){
+    Pacientes* temporal=NULL;
+    FILE* fichero;
+    fichero=fopen("pacientes.txt","r");
+    
+    int id,edad,telefono;
+    char nombre[25],apellido[25];
+    
+    rewind(fichero);
+   // while((fscanf(fichero,"%d %s %s %d %d",id,nombre,apellido,edad,telefono))!=EOF){
+    while((fscanf(fichero,"%d %s %s %d",id,nombre,apellido,edad))!=EOF){  
+        temporal=agregarPacientes(id,nombre,apellido,edad,telefono,temporal);
+    }
+    fclose(fichero);
+    return temporal;
+}
+
+
+//FUNCIONES PARA LAS VALIDACIONES AL PROGRAMAR CITA 
+/*-----------------------------------------------------------------------------
+ Funcion para contar las citas de un doctor a la misma hora
+ * Retorna la cantidad de citas que un medico tiene asignado a una hora
+ */
+int ContarCitasporHorario(Citas* ptr,int codigoMedico, int hora)
+{
+    int totalCitas=0;
+    while(ptr!=NULL){
+        if((codigoMedico==ptr->cod_medico)&&(hora==ptr->hora)){
+            totalCitas++; 
+        } 
+        else{ 
+            ptr=ptr->siguiente;
+        }    
+    }
+    return totalCitas;
+}
+
+/*Funcion para contar las citas segun las especialidades existentes*/
+int contarCitasEspecialidad(Citas* ptr, int codigoMedico, Medicos* punt, char* especialidad){
+    int mayorE = 0;
+    int totalCitasE = 0;
+    char temporal;
+    
+    while(ptr!=NULL && punt!=NULL){
+        if((codigoMedico==ptr->cod_medico) && (especialidad==punt->especialidad)){
+            temporal = punt->especialidad;
+            if (temporal==punt->especialidad){
+                totalCitasE++;   
+            }
+        }
+        else{
+           ptr=ptr->siguiente;
+           punt=punt-> siguiente;
+            }        
+    }
+   return totalCitasE;
+   return temporal;
+
+}
+
+/*Funcion que retorna cual especialidad tiene mas citas*/
+int mayorEspecialidad(int totalCitasE, char temporal, Medicos* ptr, int mayor){
+    if(contadorMayor(totalCitasE)== mayor){
+        printf("La especialidad con mayor numero de citas es: %s", &temporal );
+    }
+    return 0;
+}
+
+/*Funcion para contar la cantidad de medicos por especialidad*/
+int contarMedicosE (Medicos* ptr,int codigoMedico, char especialidad){
+    
+    int totalMedicosE = 0;
+    while(ptr!=NULL){
+        if(codigoMedico==ptr->codigo && especialidad==ptr->especialidad){
+            totalMedicosE++;
+        }
+        else{
+            ptr= ptr-> siguiente;
+        }
+    }
+    return totalMedicosE;
+}
+
+
+/*
+ Funcion para obtener Medico por codigo
+ */
+ Medicos* ObtenerMedico(Medicos* ptr,int codigoMedico){
+    while(ptr!=NULL){
+        if((ptr->codigo)==codigoMedico){
+            return ptr;
+        }
+        else{
+            ptr=ptr-> siguiente;
+        }
+    }
+}
+
+/*
+ * Comprobar que medico no tenga citas en horas diferentes a las de su turno
+ *//*
+void ComprobarHoraCitasMedicos (Citas* ptrCitas,int codigo_medico,int hora){
+    Medicos medico;
+    medico=ObtenerMedico(ptrCitas,codigo_medico);
+       
+}*/
+ 
+
+
+
+/*
+ Funcion para contar la cantidad de medicos en la lista 
+ * Retorna la cantidad de Medicos 
+ */
+int contarMedicos(Medicos* ptr)
+{
+    int totalMedicos=0;
+    while(ptr!=NULL){
+        totalMedicos++;
+        ptr=ptr-> siguiente;
+    }
+    return totalMedicos;
+}
+
+/*
+ Funcion para contar la cantidad de citas en la lista 
+ * Retorna la cantidad de Citas 
+ */
+int contarCitas(Citas* ptr)
+{
+    int totalCitas=0;
+    while(ptr!=NULL){
+        totalCitas++;
+        ptr=ptr->siguiente;
+    }
+    return totalCitas;
+}
+
+
+/*
+ Funcion para contar la cantidad de pacientes en la lista 
+ * Retorna la cantidad de Pacientes 
+ */
+int contarPacientes(Pacientes* ptr)
+{
+    int totalPacientes=0;
+    while(ptr!=NULL){
+        totalPacientes++;
+        ptr=ptr->siguiente;
+    }
+    return totalPacientes;
+}
+
+/*Funcion que va retornar la cantidad de especialidades existentes*/
+int contarEspecialidades(Medicos* ptr){
+    
+    int totalEspecialidad = 0;
+    while(ptr!=NULL){
+        totalEspecialidad++;
+        ptr=ptr-> siguiente;
+    }
+    return totalEspecialidad;
+}
+
+/*Funcion que recibe como entrada el total de citas y el total de medicos,
+ retorna promedioTotalC que es el promedio de citas que se obtiene al
+ dividir el total de citas entre el total de medicos*/
+int promedioCitas(int totalCitas, int totalMedicos ){
+    int promedioTotalC = totalCitas/totalMedicos;
+    return promedioTotalC;
+    printf("El promedio general es: %d\n citas por medico.",promedioTotalC);
+}
+
+/*Funcion que recibe como entrada el total de citas y el total de pacientes,
+ retorna promedioTotalCP que es el promedio total de citas por paciente
+ que se obtiene al dividir el total de citas entre el total de pacientes*/
+int promedioCPaciente(int totalCitas, int totalPacientes){
+    int promedioTotalCP  = totalCitas/totalPacientes;
+    return promedioTotalCP;
+    printf("Promedio de citas por paciente es %d\n",promedioTotalCP);
+}
+
+/*Funcion que retorna cual es el promedio de citas por una especialidad*/
+int promedioEspecialidad(int totalCitasE, int totalMedicosE){
+    int promedioTotalPE= totalCitasE/totalMedicosE;
+    return promedioTotalPE;
+    printf("El promedio de citas por especialidad es: %d\n ", promedioTotalPE);
+    
+}
+
+
+/*
+ Funcion para verificar que el doctor asignado a la cita se encuentra 
+ * registrado en el sistema
+ * Retorna 1 si el codigo del doctor se encuentra registrado
+ * Retorna 0 si el codigo del doctor no se encuentra registrado 
+ */
+int VerificarDoctor(Medicos* ptr,int codigoMedico)
+{
+    while(ptr!=NULL){
+        if(codigoMedico==ptr->codigo){
+            return 1;
+        } 
+        else{ 
+            ptr=ptr-> siguiente;
+        }    
+    }
+    return 0;
+}
+
+
+
+
+int main(int argc, char** argv) {
+    int respuesta;
+    FILE* ficheroMedicos;
+    FILE* ficheroCitas;
+    FILE* ficheroPacientes;
+
+    //Atributos de medicos
+    int codigoMedico;
+    char nombreMedico[15];
+    char apellidoMedico[15];
+    char especialidad[25];
+    char turno[15];
+    
+    //Inicio para las listas de Medicos, Citas y Pacientes
+    Medicos* inicioMedico=NULL; 
+    Citas* inicioCitas=NULL;
+    Pacientes* inicioPacientes=NULL;
+    
+    //Atributos de los pacientes
+    int identificacion;
+    char nombrePaciente[15];
+    char apellidoPaciente[15];
+    int edad;
+    int dia;
+    int mes;
+    int ano;
+    int pnumtelefono;
+    int snumtelefono;
+    
+    //Atributos de las citas
+    int cod_medico;
+    int id_cliente;
+    int hora;
+    
+    
+    
+    while(respuesta!=5){ 
+        printf("--------------Menu de opciones------------ \n Seleccione la opciÃ³n que desea :\n 1.Cargar datos \n 2.Registrar nuevo medico \n 3.Programar cita \n 4.Estadisticas \n 5.Salir\n");
+        scanf("%d",&respuesta);
+        if(respuesta==1)
+        { 
+            printf("-----------Cargando archivos-----------\n");
+            ficheroMedicos=cargarMedicos();
+            ficheroCitas=cargarPacientes();
+            ficheroPacientes=cargarCitas();
+            inicioMedico=leerMedicos(); 
+           
+        }
+        else if(respuesta==2)
+        {
+            if(ficheroMedicos==NULL)
+                {
+                 printf("Debe cargar el archivo de Medicos primero\n");   
+                }
+            else
+                {
+                printf("-----------Agregando Medicos-----------\n");
+                printf("Escriba el codigo del nuevo medico: ");
+                scanf("%d",&codigoMedico);
+            
+                if((existeMedico(codigoMedico,inicioMedico))==1)
+                {
+                    printf("El codigo ya fue asignado, no se pudo agregar el medico\n");
+                    exit(1);
+                }
+            
+                else
+                {
+                    printf("Escriba el nombre del medico:  ");
+                    scanf("%s",nombreMedico);
+                    printf("Escriba el primer apellido del medico: ");
+                    scanf("%s",apellidoMedico);
+                    printf("Escriba la especialidad del medico: "); 
+                    scanf("%s",especialidad);
+                    printf("Escriba el turno del medico(maÃ±ana(M),tarde(T),todo el dia(A): ");
+                    scanf("%s",turno);
+                    guardarMedico(nombreMedico,codigoMedico,apellidoMedico,especialidad,turno);
+                    inicioMedico=agregarMedico(nombreMedico,codigoMedico,apellidoMedico,especialidad,turno,inicioMedico); 
+                }
+            }
+        }
+    
+            
+        else if(respuesta==3)
+        {
+            printf("--------------Programando una cita---------------\n");
+            printf("Escriba el codigo del medico: ");
+            scanf("%d",&cod_medico);
+            
+            printf("Escriba la identificacion del paciente: ");
+            scanf("%d",&identificacion);
+
+            if((existeMedico(cod_medico,inicioMedico))==0)
+            {
+                printf("No se puede asignar el doctor, no existe dentro de los datos guardados\n");    
+            }
+            
+            
+            else if((existePaciente(identificacion,inicioPacientes))==0)
+            {
+                printf("--------Ingresando nuevo paciente--------\n");
+                printf("Ingrese su nombre: ");
+                scanf("%s",nombrePaciente);
+                
+                
+                printf("Ingrese su edad: ");
+                scanf("%d",&edad);
+                
+                printf("Ingrese los primeros 4 dÃ­gitos de su nÃºmero telefÃ³nico: ");
+                scanf("%d",&pnumtelefono); 
+            
+                printf("Ingrese los segundos 4 dÃ­gitos de su nÃºmero telefÃ³nico: ");
+                scanf("%d",&snumtelefono); 
+                
+                guardarPaciente(ficheroPacientes,identificacion,nombrePaciente,apellidoPaciente,edad);
+                
+                printf("Escriba la hora de la cita: ");
+                scanf("%d",&hora);
+
+                printf("Escriba el dia(dd) de la cita: ");
+                scanf("%d",&dia);
+
+                printf("Escriba el mes(mm) de la cita: ");
+                scanf("%d",&mes);
+
+                printf("Escriba el aÃ±o(aaaa) de la cita: ");
+                scanf("%d",&ano);
+            }
+            else
+            {    
+                printf("Escriba la hora de la cita: ");
+                scanf("%d",&hora);
+
+                printf("Escriba el dia(dd) de la cita: ");
+                scanf("%d",&dia);
+
+                printf("Escriba el mes(mm) de la cita: ");
+                scanf("%d",&mes);
+
+                printf("Escriba el aÃ±o(aaaa) de la cita: ");
+                scanf("%d",&ano);
+            }                  
+        }
+        else if(respuesta==4){
+            printf("-----------EstadÃ­sticas-----------\n");
+            int a = contarCitas(inicioCitas);
+            int b = contarMedicos(inicioMedico);
+            int c = contarPacientes(inicioPacientes);
+            promedioCitas(a,b);
+            promedioCPaciente(a,c);
+        }       
+    }
+
+    return (EXIT_SUCCESS);
+}
